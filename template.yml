@@ -1,0 +1,51 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+Description: TripSage AWS resources
+
+Parameters:
+  ResourceEnv:
+    Description: 'Environment which the resources will be deployed to'
+    Type: 'String'
+    AllowedValues:
+      - 'dev-feature'
+      - 'dev'
+      - 'hotfix'
+      - 'bugfix'
+      - 'prod'
+  
+  Component:
+    Description: "Name of Component"
+    Type: String
+
+  LogLevel:
+    Description: "Log level for functions"
+    Type: String
+    Default: 'INFO'
+    AllowedValues:
+      - 'DEBUG'
+      - 'INFO'
+      - 'WARNING'
+      - 'ERROR'
+      - 'CRITICAL'
+
+Globals:
+  Function:
+    Runtime: python3.10
+    Timeout: 180
+    Environment:
+      Variables:
+        LOG_LEVEL: !Ref LogLevel
+        RESOURCE_ENV: !Ref ResourceEnv
+        POWERTOOLS_SERVICE_NAME: !Ref AWS::StackName
+
+Resources:
+  CommonLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName:
+      ContentUri: src/common
+      RetentionPolicy: Delete
+      CompatibleRuntimes: 
+        - python3.10
+    Metadata:
+      BuildMethod: makefile
