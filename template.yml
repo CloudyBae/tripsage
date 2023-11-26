@@ -7,15 +7,16 @@ Parameters:
     Description: 'Environment which the resources will be deployed to'
     Type: 'String'
     AllowedValues:
-      - 'dev-feature'
       - 'dev'
-      - 'hotfix'
-      - 'bugfix'
       - 'prod'
-  
-  Component:
-    Description: "Name of Component"
-    Type: String
+
+  DeploymentEnv:
+    Description: 'Name of the environment that the resources are deployed into'
+    Type: 'String'
+    AllowedValues:
+      - 'dev'
+      - 'dev-feature'
+      - 'prod'
 
   LogLevel:
     Description: "Log level for functions"
@@ -39,13 +40,23 @@ Globals:
         POWERTOOLS_SERVICE_NAME: !Ref AWS::StackName
 
 Resources:
-  CommonLayer:
-    Type: AWS::Serverless::LayerVersion
+#   CommonLayer:
+#     Type: AWS::Serverless::LayerVersion
+#     Properties:
+#       LayerName:
+#       ContentUri: src/common
+#       RetentionPolicy: Delete
+#       CompatibleRuntimes: 
+#         - python3.10
+#     Metadata:
+#       BuildMethod: makefile
+  # LambdaCustomEdge:
+  #   Type: AWS::Serverless::Function 
+  #   Properties:
+  #     Handler: src.handler
+  #     Runtime: python3.10
+  
+  TripSageBucket:
+    Type: AWS::S3::Bucket
     Properties:
-      LayerName:
-      ContentUri: src/common
-      RetentionPolicy: Delete
-      CompatibleRuntimes: 
-        - python3.10
-    Metadata:
-      BuildMethod: makefile
+      BucketName: !Sub tripsage-bucket-${DeploymentEnv}
