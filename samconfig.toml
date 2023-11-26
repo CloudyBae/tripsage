@@ -4,6 +4,6 @@ version = 0.1
 [default.deploy]
 
 [default.deploy.parameters]
-stack_name = "tripsage"
+stack-name = "tripsage"
 confirm_changeset = false
 capabilities = "CAPABILITY_NAMED_IAM

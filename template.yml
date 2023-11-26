@@ -18,16 +18,16 @@ Parameters:
       - 'dev-feature'
       - 'prod'
 
-  LogLevel:
-    Description: "Log level for functions"
-    Type: String
-    Default: 'INFO'
-    AllowedValues:
-      - 'DEBUG'
-      - 'INFO'
-      - 'WARNING'
-      - 'ERROR'
-      - 'CRITICAL'
+  # LogLevel:
+  #   Description: "Log level for functions"
+  #   Type: String
+  #   Default: 'INFO'
+  #   AllowedValues:
+  #     - 'DEBUG'
+  #     - 'INFO'
+  #     - 'WARNING'
+  #     - 'ERROR'
+  #     - 'CRITICAL'
 
 Globals:
   Function:
@@ -35,9 +35,8 @@ Globals:
     Timeout: 180
     Environment:
       Variables:
-        LOG_LEVEL: !Ref LogLevel
-        RESOURCE_ENV: !Ref ResourceEnv
-        POWERTOOLS_SERVICE_NAME: !Ref AWS::StackName
+        ResourceEnv: !Ref ResourceEnv
+
 
 Resources:
 #   CommonLayer:

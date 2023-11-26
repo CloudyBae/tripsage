@@ -50,5 +50,5 @@ jobs:
         run: |
           branch_name="$GITHUB_REF_NAME"
           github_branch_name=$(echo "$branch_name" | tr '/' '-')
-          echo "$converted_branch_name"
-          sam deploy --stack-name "$github_branch_name" --s3-bucket tripsage-sam-bucket --s3-prefix "$converted_branch_name" --region us-east-1 --parameter-overrides DeploymentEnv="dev-feature" ResourceEnv="dev" 
+          echo "$github_branch_name"
+          sam deploy --stack-name "$github_branch_name" --s3-bucket tripsage-sam-bucket --s3-prefix "$github_branch_name" --region us-east-1 --parameter-overrides DeploymentEnv="dev-feature" ResourceEnv="dev" 
