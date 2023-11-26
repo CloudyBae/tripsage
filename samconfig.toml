@@ -1,22 +1,18 @@
 version = 0.1
 [default]
-
-[default.build]
-[default.build.parameters]
-profile="tripsage"
-debug=true
-skip_pull_image=true
-use_container=true
-
-[default.package]
-[default.package.parameters]
-profile="tripsage"
+[default.global]
+[default.global.parameters]
 region="us-east-1"
 s3_bucket="tripsage-sam-bucket"
 output_template_file="packaged.yaml"
 
+[default.build]
+[default.build.parameters]
+cached = true
+parallel = true
+
 [default.deploy]
 [default.deploy.parameters]
-capabilities="CAPABILITY_NAMED_IAM
+capabilities="CAPABILITY_NAMED_IAM"
 region="us-east-1"
-profile="tripsage"
+confirm_changeset = false
