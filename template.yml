@@ -40,6 +40,8 @@ Globals:
     Environment:
       Variables:
         ResourceEnv: !Ref ResourceEnv
+        DeploymentEnv: !Ref DeploymentEnv
+        ServiceEnv: !Ref ServiceEnv
 
 
 Resources:
