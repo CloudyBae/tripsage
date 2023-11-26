@@ -4,5 +4,6 @@ version = 0.1
 [default.deploy]
 
 [default.deploy.parameters]
-stack-name = "tripsage"
 capabilities = "CAPABILITY_NAMED_IAM
+region = "us-east-1"
+s3_bucket = tripsage-sam-bucket
