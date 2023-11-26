@@ -18,6 +18,10 @@ Parameters:
       - 'dev-feature'
       - 'prod'
 
+  ServiceEnv:
+    Description: 'Name of the service environment'
+    Type: 'String'
+
   # LogLevel:
   #   Description: "Log level for functions"
   #   Type: String
@@ -58,4 +62,4 @@ Resources:
   TripSageBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub tripsage-bucket-${DeploymentEnv}
+      BucketName: !Sub tripsage-bucket-${ServiceEnv}
