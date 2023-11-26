@@ -1,0 +1,67 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+Description: TripSage AWS resources
+
+Parameters:
+  ResourceEnv:
+    Description: 'Environment which the resources will be deployed to'
+    Type: 'String'
+    AllowedValues:
+      - 'dev'
+      - 'prod'
+
+  DeploymentEnv:
+    Description: 'Name of the environment that the resources are deployed into'
+    Type: 'String'
+    AllowedValues:
+      - 'dev'
+      - 'dev-feature'
+      - 'prod'
+
+  ServiceEnv:
+    Description: 'Name of the service environment'
+    Type: 'String'
+
+  # LogLevel:
+  #   Description: "Log level for functions"
+  #   Type: String
+  #   Default: 'INFO'
+  #   AllowedValues:
+  #     - 'DEBUG'
+  #     - 'INFO'
+  #     - 'WARNING'
+  #     - 'ERROR'
+  #     - 'CRITICAL'
+
+Globals:
+  Function:
+    Runtime: python3.10
+    Timeout: 180
+    Environment:
+      Variables:
+        ResourceEnv: !Ref ResourceEnv
+        DeploymentEnv: !Ref DeploymentEnv
+        ServiceEnv: !Ref ServiceEnv
+
+
+Resources:
+#   CommonLayer:
+#     Type: AWS::Serverless::LayerVersion
+#     Properties:
+#       LayerName:
+#       ContentUri: src/common
+#       RetentionPolicy: Delete
+#       CompatibleRuntimes: 
+#         - python3.10
+#     Metadata:
+#       BuildMethod: makefile
+  # LambdaCustomEdge:
+  #   Type: AWS::Serverless::Function 
+  #   Properties:
+  #     Handler: src.handler
+  #     Runtime: python3.10
+  
+  TripSageBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub tripsage-bucket-${ServiceEnv}
