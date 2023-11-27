@@ -11,6 +11,7 @@ jobs:
       security-events: write
       id-token: write
       contents: read
+    if: github.ref != 'refs/heads/main'
     steps:
       - name: Checkout Git repository
         uses: actions/checkout@v3
