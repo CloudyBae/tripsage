@@ -1,8 +1,10 @@
 name: Delete Dev-Feature
 on:
   delete:
-    branches-ignore:
-      - 'main'
+    branches:
+      - 'feature/*'
+      - 'hotfix/*'
+      - 'bugfix/*'
 
 jobs:
   delete:
@@ -11,6 +13,7 @@ jobs:
       security-events: write
       id-token: write
       contents: read
+    if: github.ref != 'refs/heads/main'
     steps:
       - name: Checkout Git repository
         uses: actions/checkout@v3
