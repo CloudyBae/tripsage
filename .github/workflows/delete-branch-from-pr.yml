@@ -40,4 +40,4 @@ jobs:
           branch_name="${{ github.event.pull_request.head.ref }}"
           github_branch_name=$(echo "$branch_name" | tr '/' '-')
           echo "$github_branch_name"
-          sam delete --stack-name "$github_branch_name" --no-prompts
+          sam delete --stack-name "$github_branch_name" --s3-bucket "tripsage-sam-bucket" --no-prompts
