@@ -1,8 +1,10 @@
 name: Delete Dev-Feature
 on:
   delete:
-    branches-ignore:
-      - 'main'
+    branches:
+      - 'feature/*'
+      - 'hotfix/*'
+      - 'bugfix/*'
 
 jobs:
   delete:
