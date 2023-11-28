@@ -10,9 +10,9 @@ export default function Home() {
         fill={true}
         style={{objectFit: "contain"}}
         alt="Picture of the world map with pins"
-        className="opacity-40"
+        className="opacity-30"
       />
-      <div className="z-20 absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/4 p-2 flex flex-col items-center justify-center gap-2">
+      <div className="z-20 absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/4 p-2 flex flex-col items-center justify-center gap-2 text-yellow-800">
           <h1 className="text-3xl font-bold">TripSage</h1>
           <div className="text-xl font-semibold">Plan your next trip anywhere around the world</div>
       </div>
