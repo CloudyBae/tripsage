@@ -4,37 +4,89 @@ import SelectDate from '@/components/SelectDate';
 import { isSameDay, isBefore } from "date-fns";
 
 interface Errors {
+    arrivalInput: string | null;
+    departInput: string | null;
     return: string | null;
 }
 
 export default function PlanForm() {
+  const [departInput, setDepartInput] = useState<string>('')
+  const [arrivalInput, setArrivalInput] = useState<string>('')
   const [departDate, setDepartDate] = useState<Date | null>(null)
   const [returnDate, setReturnDate] = useState<Date | null>(null)
-  const [errors, setErrors] = useState<Errors>({return: null})
+  const [errors, setErrors] = useState<Errors>({
+    arrivalInput: null,
+    departInput: null,
+    return: null,
+  })
 
-  useEffect(() => {
-    console.log("departDate is now: ", departDate)
-    console.log("returnDate is now: ", returnDate)
-    if (departDate && returnDate) {
-        console.log("Is same day:", isSameDay(departDate, returnDate));
-        console.log("Is before:", isBefore(departDate, returnDate));
+  // ** Check functions ** //
+  const checkAirportCodeLengths = () => {
+    // Ensure that airport code lengths are 3 letters long
+    if (departInput.length !== 3) {
+      setErrors((prevErrors) => ({ ...prevErrors, departInput: "Departure code must be 3 letters long."}));
+    } else {
+      setErrors((prevErrors) => ({ ...prevErrors, departInput: null}));    
     }
-  }, [departDate, returnDate])
+  
+    if (arrivalInput.length !== 3) {
+      setErrors((prevErrors) => ({ ...prevErrors, arrivalInput: "Arrival code must be 3 letters long."}));
+    } else {
+      setErrors((prevErrors) => ({ ...prevErrors, arrivalInput: null}));    
+    }
+  }
 
   const checkDepartBeforeReturn = () => {
     if (departDate && returnDate) {
         if (isSameDay(departDate, returnDate) || isBefore(departDate, returnDate)) {
-            // return is either the same day or after departure
+            // return is either the same day or after departure, which is OK
+            setErrors((prevErrors) => ({ ...prevErrors, return: null}));
         } else {
-            const obj = {return: "Your return date cannot be before your departure date."}
-            setErrors(obj);
+            setErrors((prevErrors) => ({ ...prevErrors, return: "Your return date cannot be before your departure date."}));
         }
+    }
+  }
+  
+  const areThereErrors = () => {
+    const hasErrors = Object.values(errors).some(value => value !== null);
+    if (hasErrors) {
+        // There are errors
+        return true
+    } else {
+        // No errors, proceed
+        return false
+    }
+  }
+
+  // ** Handler functions ** //
+  const handleDepartInput:React.ChangeEventHandler<HTMLInputElement> = (e) => {
+    // Test if the input value is an alphabet letter only
+    const isAlphabetLetter = /^[A-Za-z]+$/.test(e.target.value);
+    // Limit the input length to 3 characters
+    const truncatedValue = e.target.value.slice(0, 3);
+    // If the truncated value is an alphabet letter or empty, update state
+    if (isAlphabetLetter || truncatedValue === '') {
+        setDepartInput(truncatedValue);
+    }
+  }
+
+  const handleArrivalInput:React.ChangeEventHandler<HTMLInputElement> = (e) => {
+    // Test if the input value is an alphabet letter only
+    const isAlphabetLetter = /^[A-Za-z]+$/.test(e.target.value);
+    // Limit the input length to 3 characters
+    const truncatedValue = e.target.value.slice(0, 3);
+    // If the truncated value is an alphabet letter or empty, update state
+    if (isAlphabetLetter || truncatedValue === '') {
+        setArrivalInput(truncatedValue);
     }
   }
 
   const handleSubmit = async (e:React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    checkAirportCodeLengths();
     checkDepartBeforeReturn();
+    if (areThereErrors()) return;
+    console.log("No errors, submitting");
   }
 
   return (
@@ -47,13 +99,13 @@ export default function PlanForm() {
         
         <div className="flex flex-col justify-center items-center gap-2">
           <label htmlFor="departure">Where are you departing from?</label>
-          <input type="text" name="departure" placeholder="ex: DFW" required/>
+          <input type="text" name="departure" placeholder="ex: DFW" onChange={handleDepartInput} value={departInput} required/>
           {/* {(errors.email) && <p className="text-red">{errors.email}</p>}  */}
         </div>
         
         <div className="flex flex-col justify-center items-center gap-2">
           <label htmlFor="arrival">Where are traveling to?</label>
-          <input type="text" name="arrival" placeholder="ex: HNL" required/>
+          <input type="text" name="arrival" placeholder="ex: HNL" onChange={handleArrivalInput} value={arrivalInput} required/>
           {/* {(errors.email) && <p className="text-red">{errors.email}</p>}  */}
         </div>
 
