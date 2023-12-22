@@ -66,7 +66,7 @@ export default function PlanForm() {
     const truncatedValue = e.target.value.slice(0, 3);
     // If the truncated value is an alphabet letter or empty, update state
     if (isAlphabetLetter || truncatedValue === '') {
-        setDepartInput(truncatedValue);
+        setDepartInput(truncatedValue.toUpperCase());
     }
   }
 
@@ -77,7 +77,7 @@ export default function PlanForm() {
     const truncatedValue = e.target.value.slice(0, 3);
     // If the truncated value is an alphabet letter or empty, update state
     if (isAlphabetLetter || truncatedValue === '') {
-        setArrivalInput(truncatedValue);
+        setArrivalInput(truncatedValue.toUpperCase());
     }
   }
 
@@ -89,6 +89,13 @@ export default function PlanForm() {
     console.log("No errors, submitting");
   }
 
+  useEffect(() => {
+    console.log("departInput is ", departInput)
+  }, [departInput])
+  useEffect(() => {
+    console.log("arrivalInput is ", arrivalInput)
+  }, [arrivalInput])
+
   return (
     <form className="relative flex flex-col gap-4 justify-start items-center" method="POST" action="/form" onSubmit={handleSubmit}>
         <div className="flex flex-col justify-center items-center gap-2">
@@ -99,14 +106,28 @@ export default function PlanForm() {
         
         <div className="flex flex-col justify-center items-center gap-2">
           <label htmlFor="departure">Where are you departing from?</label>
-          <input type="text" name="departure" placeholder="ex: DFW" onChange={handleDepartInput} value={departInput} required/>
-          {/* {(errors.email) && <p className="text-red">{errors.email}</p>}  */}
+          <input 
+            type="text" 
+            name="departure" 
+            placeholder="ex: DFW" 
+            onChange={handleDepartInput} 
+            value={departInput} 
+            required
+          />
+          {(errors.departInput) && <p className="text-red-700">{errors.departInput}</p>} 
         </div>
         
         <div className="flex flex-col justify-center items-center gap-2">
           <label htmlFor="arrival">Where are traveling to?</label>
-          <input type="text" name="arrival" placeholder="ex: HNL" onChange={handleArrivalInput} value={arrivalInput} required/>
-          {/* {(errors.email) && <p className="text-red">{errors.email}</p>}  */}
+          <input 
+            type="text" 
+            name="arrival" 
+            placeholder="ex: HNL" 
+            onChange={handleArrivalInput} 
+            value={arrivalInput} 
+            required
+          />
+          {(errors.arrivalInput) && <p className="text-red-700">{errors.arrivalInput}</p>} 
         </div>
 
         <div>
@@ -118,7 +139,7 @@ export default function PlanForm() {
           <p>Return Date:</p>
           <SelectDate passingFunct={setReturnDate} />
         </div>
-        {errors.return && <p className="text-red">{errors.return}</p>}
+        {errors.return && <p className="text-red-700">{errors.return}</p>}
         <button type="submit" className="w-fit border border-transparent border-2 rounded-full text-white bg-yellow-700 p-2 hover:bg-yellow-400 hover:text-yellow-700 hover:border-yellow-700">Search</button>
     </form>
   )
