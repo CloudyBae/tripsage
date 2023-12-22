@@ -6,10 +6,12 @@ import { isSameDay, isBefore } from "date-fns";
 interface Errors {
     arrivalInput: string | null;
     departInput: string | null;
+    tripName: string | null;
     return: string | null;
 }
 
 export default function PlanForm() {
+  const [tripName, setTripName] = useState<string>('')
   const [departInput, setDepartInput] = useState<string>('')
   const [arrivalInput, setArrivalInput] = useState<string>('')
   const [departDate, setDepartDate] = useState<Date | null>(null)
@@ -17,10 +19,19 @@ export default function PlanForm() {
   const [errors, setErrors] = useState<Errors>({
     arrivalInput: null,
     departInput: null,
+    tripName: null,
     return: null,
   })
 
   // ** Check functions ** //
+  const checkTripName = () => {
+    if (tripName.trim().length === 0 || tripName.trim() === "") {
+        setErrors((prevErrors) => ({ ...prevErrors, tripName: "Please enter a name for your trip."}));
+    } else {
+        setErrors((prevErrors) => ({ ...prevErrors, tripName: null}));
+    }
+  }
+
   const checkAirportCodeLengths = () => {
     // Ensure that airport code lengths are 3 letters long
     if (departInput.length !== 3) {
@@ -59,6 +70,10 @@ export default function PlanForm() {
   }
 
   // ** Handler functions ** //
+  const handleTripName:React.ChangeEventHandler<HTMLInputElement> = (e) => {
+    setTripName(e.target.value);
+  }
+
   const handleDepartInput:React.ChangeEventHandler<HTMLInputElement> = (e) => {
     // Test if the input value is an alphabet letter only
     const isAlphabetLetter = /^[A-Za-z]+$/.test(e.target.value);
@@ -83,6 +98,7 @@ export default function PlanForm() {
 
   const handleSubmit = async (e:React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    checkTripName();
     checkAirportCodeLengths();
     checkDepartBeforeReturn();
     if (areThereErrors()) return;
@@ -95,13 +111,26 @@ export default function PlanForm() {
   useEffect(() => {
     console.log("arrivalInput is ", arrivalInput)
   }, [arrivalInput])
+  useEffect(() => {
+    console.log("departDate is ", departDate)
+  }, [departDate])
+  useEffect(() => {
+    console.log("returnDate is ", returnDate)
+  }, [returnDate])
 
   return (
     <form className="relative flex flex-col gap-4 justify-start items-center" method="POST" action="/form" onSubmit={handleSubmit}>
         <div className="flex flex-col justify-center items-center gap-2">
           <label htmlFor="name">Give your trip a name!</label>
-          <input type="text" name="name" placeholder="My Dream Destination" required/>
-          {/* {(errors.name) && <p className="text-red">{errors.name}</p>}  */}
+          <input 
+            type="text" 
+            name="name" 
+            placeholder="My Dream Destination" 
+            onChange={handleTripName}
+            value={tripName}
+            required
+          />
+          {(errors.tripName) && <p className="text-red-700">{errors.tripName}</p>} 
         </div>
         
         <div className="flex flex-col justify-center items-center gap-2">
