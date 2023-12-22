@@ -17,11 +17,12 @@ export default function Home() {
           <div className="text-xl font-semibold">Plan your next trip anywhere around the world</div>
       </div>
       <div className="z-20 absolute top-3/4 left-1/2 -translate-x-1/2 -translate-y-3/4 p-2 flex flex-col items-center justify-center gap-2 text-white">
-        <Link href="/plan">
-          <button className="border rounded-full border-2 border-transparent bg-yellow-700 p-2 hover:bg-yellow-400 hover:text-yellow-700 hover:border-yellow-700 transition ease-in-out">Create New Travel Plan</button>
+        <Link href="/plan" className="border rounded-full border-2 border-transparent bg-yellow-700 p-2 hover:bg-yellow-400 hover:text-yellow-700 hover:border-yellow-700 transition ease-in-out">
+          Create New Travel Plan
+          {/* <button className="border rounded-full border-2 border-transparent bg-yellow-700 p-2 hover:bg-yellow-400 hover:text-yellow-700 hover:border-yellow-700 transition ease-in-out"></button> */}
         </Link>
-        <Link href="/past">
-          <button className="border rounded-full border-2 border-transparent bg-yellow-700 p-2 hover:bg-yellow-400 hover:text-yellow-700 hover:border-yellow-700 transition ease-in-out">View Past Plans</button>
+        <Link href="/past" className="border rounded-full border-2 border-transparent bg-yellow-700 p-2 hover:bg-yellow-400 hover:text-yellow-700 hover:border-yellow-700 transition ease-in-out">
+          View Past Plans
         </Link>
       </div>
       <div className="text-xs z-20 absolute bottom-0 right-0 p-2">Photo by <a href="https://unsplash.com/@drwmrk?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash">Andrew Stutesman</a> on <a href="https://unsplash.com/photos/blue-green-and-yellow-world-map-l68Z6eF2peA?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash">Unsplash</a>
