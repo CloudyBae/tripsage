@@ -5,11 +5,12 @@ config = {
   "api": {
     "flights": {
       # "api_key": "e5271c74c7msh336578886b36ce5p1b7fb3jsnf74ff4318717",
-      "api_key": "cb67d034bdmsh90789df0f78a879p163c14jsn5f70d7a4a62d",
+      # "api_key": "cb67d034bdmsh90789df0f78a879p163c14jsn5f70d7a4a62d",
+      "api_key": "7a2439c199mshbda64084c6e7608p1831dcjsnfc2acf98c0f1",
       "api_host": "priceline-com-provider.p.rapidapi.com"
     },
     "attractions": {
-      "api_key": "5ae2e3f221c38a28845f05b60ffcf38d0eecc62a698a2c6e2d0c58fe"
+      "api_key": "5ae2e3f221c38a28845f05b6074010519a9878e9c7a4236bb6570a6b"
     }
   }
 }
