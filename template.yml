@@ -132,33 +132,45 @@ Resources:
 ####################
 
   DynamoDBTable:
-  Type: 'AWS::DynamoDB::Table'
-  Properties:
-    TableName: Music
-    # A list of attributes that describe the key schema for the DynamoDB table and indexes.
-    AttributeDefinitions:
-      - AttributeName: id
-        AttributeType: S
-      - AttributeName: artist
-        AttributeType: S
-    KeySchema:
-      - AttributeName: id
-        KeyType: HASH
-    ProvisionedThroughput:
-      ReadCapacityUnits: 5
-      WriteCapacityUnits: 5
-    GlobalSecondaryIndexes:
-      - IndexName: Artist-Index
-        KeySchema:
-          - AttributeName: artist
-            KeyType: HASH
-        Projection:
-          ProjectionType: INCLUDE
-          NonKeyAttributes:
-            - album
-        ProvisionedThroughput:
-          ReadCapacityUnits: 5
-          WriteCapacityUnits: 5
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: TripSage-${ResourceEnv}
+      KeySchema:
+        - AttributeName: PK
+          KeyType: HASH
+        - AttributeName: SK
+          KeyType: RANGE
+      AttributeDefinitions:
+        - AttributeName: PK
+          AttributeType: S
+        - AttributeName: SK
+          AttributeType: S
+        - AttributeName: GSI1_PK
+          AttributeType: S
+        - AttributeName: GSI1_SK
+          AttributeType: S
+        - AttributeName: GSI2_PK
+          AttributeType: S
+        - AttributeName: GSI2_SK
+          AttributeType: S
+      BillingMode: PAY_PER_REQUEST
+      GlobalSecondaryIndexes:
+        - IndexName: GSI1
+          KeySchema:
+            - AttributeName: GSI1_PK
+              KeyType: HASH
+            - AttributeName: GSI1_SK
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+        - IndexName: GSI2
+          KeySchema:
+            - AttributeName: GSI2_PK
+              KeyType: HASH
+            - AttributeName: GSI2_SK
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
 
 #############
 #  OUTPUTS  #
