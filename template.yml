@@ -10,28 +10,23 @@ Parameters:
       - 'dev'
       - 'prod'
 
-  DeploymentEnv:
-    Description: 'Name of the environment that the resources are deployed into'
-    Type: 'String'
-    AllowedValues:
-      - 'dev'
-      - 'dev-feature'
-      - 'prod'
-
   ServiceEnv:
     Description: 'Name of the service environment'
     Type: 'String'
 
-  # LogLevel:
-  #   Description: "Log level for functions"
-  #   Type: String
-  #   Default: 'INFO'
-  #   AllowedValues:
-  #     - 'DEBUG'
-  #     - 'INFO'
-  #     - 'WARNING'
-  #     - 'ERROR'
-  #     - 'CRITICAL'
+  LogLevel:
+    Description: "Log level for functions"
+    Type: String
+    Default: 'INFO'
+    AllowedValues:
+      - 'DEBUG'
+      - 'INFO'
+      - 'WARNING'
+      - 'ERROR'
+      - 'CRITICAL'
+
+Conditions:
+  IsProdDeployment: !Equals [!Ref ServiceEnv, 'prod']
 
 Globals:
   Function:
@@ -40,28 +35,136 @@ Globals:
     Environment:
       Variables:
         ResourceEnv: !Ref ResourceEnv
-        DeploymentEnv: !Ref DeploymentEnv
         ServiceEnv: !Ref ServiceEnv
 
-
 Resources:
-#   CommonLayer:
-#     Type: AWS::Serverless::LayerVersion
-#     Properties:
-#       LayerName:
-#       ContentUri: src/common
-#       RetentionPolicy: Delete
-#       CompatibleRuntimes: 
-#         - python3.10
-#     Metadata:
-#       BuildMethod: makefile
-  # LambdaCustomEdge:
-  #   Type: AWS::Serverless::Function 
-  #   Properties:
-  #     Handler: src.handler
-  #     Runtime: python3.10
-  
+  CommonLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName:
+      ContentUri: src/common
+      RetentionPolicy: Delete
+      CompatibleRuntimes: 
+        - python3.10
+    Metadata:
+      BuildMethod: python3.10
+ 
+  CreateFunction:
+    Type: AWS::Serverless::Function
+    Description: 'Lambda function to create an item in DynamoDB table'
+    Properties:
+      FunctionName: CreateItemFunction
+      Handler: handler
+      CodeUri: src/handler
+      Policies:
+        DynamoDBCrudPolicy:
+          TableName: !Ref DynamoDBTable
+      Events:
+        CreateApiEvent:
+          Type: Api
+          Properties:
+            Path: /create
+            Method: POST
+
+  ReadFunction:
+    Type: AWS::Serverless::Function
+    Description: 'Lambda function to read an item from DynamoDB table'
+    Properties:
+      FunctionName: ReadItemFunction
+      Handler: handler
+      CodeUri: src/handler
+      Policies:
+        DynamoDBReadPolicy:
+          TableName: !Ref DynamoDBTable
+      Events:
+        ReadApiEvent:
+          Type: Api
+          Properties:
+            Path: /read/{id}
+            Method: GET
+
+  UpdateFunction:
+    Type: AWS::Serverless::Function
+    Description: 'Lambda function to update an item in DynamoDB table'
+    Properties:
+      FunctionName: UpdateItemFunction
+      Handler: handler
+      CodeUri: src/handler
+      Policies:
+        DynamoDBCrudPolicy:
+          TableName: !Ref DynamoDBTable
+      Events:
+        UpdateApiEvent:
+          Type: Api
+          Properties:
+            Path: /update/{id}
+            Method: PUT
+
+  DeleteFunction:
+    Type: AWS::Serverless::Function
+    Description: 'Lambda function to delete an item from DynamoDB table'
+    Properties:
+      FunctionName: DeleteItemFunction
+      Handler: handler
+      CodeUri: src/handler
+      Policies:
+        DynamoDBCrudPolicy:
+          TableName: !Ref DynamoDBTable
+      Events:
+        DeleteApiEvent:
+          Type: Api
+          Properties:
+            Path: /delete/{id}
+            Method: DELETE
+
+###############
+#  S3 BUCKET  #
+###############
+
   TripSageBucket:
     Type: AWS::S3::Bucket
+    Condition: IsProdDeployment
     Properties:
       BucketName: !Sub tripsage-bucket-${ServiceEnv}
+
+####################
+#  DYNAMODB TABLE  #
+####################
+
+  DynamoDBTable:
+  Type: 'AWS::DynamoDB::Table'
+  Properties:
+    TableName: Music
+    # A list of attributes that describe the key schema for the DynamoDB table and indexes.
+    AttributeDefinitions:
+      - AttributeName: id
+        AttributeType: S
+      - AttributeName: artist
+        AttributeType: S
+    KeySchema:
+      - AttributeName: id
+        KeyType: HASH
+    ProvisionedThroughput:
+      ReadCapacityUnits: 5
+      WriteCapacityUnits: 5
+    GlobalSecondaryIndexes:
+      - IndexName: Artist-Index
+        KeySchema:
+          - AttributeName: artist
+            KeyType: HASH
+        Projection:
+          ProjectionType: INCLUDE
+          NonKeyAttributes:
+            - album
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5
+
+#############
+#  OUTPUTS  #
+#############
+
+Outputs:
+  EndpointUrl:
+    Description: 'HTTP REST endpoint URL'
+    Value: !Sub 'https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/${DeploymentEnv}'
