@@ -19,11 +19,8 @@ Parameters:
     Type: String
     Default: 'INFO'
     AllowedValues:
-      - 'DEBUG'
       - 'INFO'
-      - 'WARNING'
-      - 'ERROR'
-      - 'CRITICAL'
+      - 'DEBUG'
 
 Conditions:
   IsProdDeployment: !Equals [!Ref ServiceEnv, 'prod']
@@ -34,89 +31,12 @@ Globals:
     Timeout: 180
     Environment:
       Variables:
+        LOG_LEVEL:
+          Ref: LogLevel
         ResourceEnv: !Ref ResourceEnv
         ServiceEnv: !Ref ServiceEnv
 
 Resources:
-  CommonLayer:
-    Type: AWS::Serverless::LayerVersion
-    Properties:
-      LayerName:
-      ContentUri: src/common
-      RetentionPolicy: Delete
-      CompatibleRuntimes: 
-        - python3.10
-    Metadata:
-      BuildMethod: python3.10
- 
-  CreateFunction:
-    Type: AWS::Serverless::Function
-    Description: 'Lambda function to create an item in DynamoDB table'
-    Properties:
-      FunctionName: CreateItemFunction
-      Handler: handler
-      CodeUri: src/handler
-      Policies:
-        DynamoDBCrudPolicy:
-          TableName: !Ref DynamoDBTable
-      Events:
-        CreateApiEvent:
-          Type: Api
-          Properties:
-            Path: /create
-            Method: POST
-
-  ReadFunction:
-    Type: AWS::Serverless::Function
-    Description: 'Lambda function to read an item from DynamoDB table'
-    Properties:
-      FunctionName: ReadItemFunction
-      Handler: handler
-      CodeUri: src/handler
-      Policies:
-        DynamoDBReadPolicy:
-          TableName: !Ref DynamoDBTable
-      Events:
-        ReadApiEvent:
-          Type: Api
-          Properties:
-            Path: /read/{id}
-            Method: GET
-
-  UpdateFunction:
-    Type: AWS::Serverless::Function
-    Description: 'Lambda function to update an item in DynamoDB table'
-    Properties:
-      FunctionName: UpdateItemFunction
-      Handler: handler
-      CodeUri: src/handler
-      Policies:
-        DynamoDBCrudPolicy:
-          TableName: !Ref DynamoDBTable
-      Events:
-        UpdateApiEvent:
-          Type: Api
-          Properties:
-            Path: /update/{id}
-            Method: PUT
-
-  DeleteFunction:
-    Type: AWS::Serverless::Function
-    Description: 'Lambda function to delete an item from DynamoDB table'
-    Properties:
-      FunctionName: DeleteItemFunction
-      Handler: handler
-      CodeUri: src/handler
-      Policies:
-        DynamoDBCrudPolicy:
-          TableName: !Ref DynamoDBTable
-      Events:
-        DeleteApiEvent:
-          Type: Api
-          Properties:
-            Path: /delete/{id}
-            Method: DELETE
-
 ###############
 #  S3 BUCKET  #
 ###############
@@ -125,16 +45,17 @@ Resources:
     Type: AWS::S3::Bucket
     Condition: IsProdDeployment
     Properties:
-      BucketName: !Sub tripsage-bucket-${ServiceEnv}
+      BucketName: !Sub tripsage.net
 
 ####################
 #  DYNAMODB TABLE  #
 ####################
 
-  DynamoDBTable:
+  TripSageDdbTable-Dev:
     Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
     Properties:
-      TableName: TripSage-${ResourceEnv}
       KeySchema:
         - AttributeName: PK
           KeyType: HASH
@@ -172,11 +93,73 @@ Resources:
           Projection:
             ProjectionType: ALL
 
+  TripSageDdbTable-Prod:
+    Type: AWS::DynamoDB::Table
+    Condition: IsProdDeployment
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      KeySchema:
+        - AttributeName: PK
+          KeyType: HASH
+        - AttributeName: SK
+          KeyType: RANGE
+      AttributeDefinitions:
+        - AttributeName: PK
+          AttributeType: S
+        - AttributeName: SK
+          AttributeType: S
+        - AttributeName: GSI1_PK
+          AttributeType: S
+        - AttributeName: GSI1_SK
+          AttributeType: S
+        - AttributeName: GSI2_PK
+          AttributeType: S
+        - AttributeName: GSI2_SK
+          AttributeType: S
+      BillingMode: PAY_PER_REQUEST
+      GlobalSecondaryIndexes:
+        - IndexName: GSI1
+          KeySchema:
+            - AttributeName: GSI1_PK
+              KeyType: HASH
+            - AttributeName: GSI1_SK
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+        - IndexName: GSI2
+          KeySchema:
+            - AttributeName: GSI2_PK
+              KeyType: HASH
+            - AttributeName: GSI2_SK
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+
+####################
+#  SSM Parameters  #
+####################
+
+  DynamoDbName:
+    Type: AWS::SSM::Paramter
+    Properties:
+      Description: "Trip Sage DDB Name"
+      Name: !Sub "TripSageDdbName-${ResourceEnv}"
+      Type: "String"
+      Value:
+        - !Ref TripSageDdbTable-Dev
+        - !Ref TripSageDdbTable-Prod
+  
+  DynamoDbArn:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Description: "Trip Sage DDB Arn"
+      Name: !Sub "TripSageDdbArn-${ResourceEnv}"
+      Type: "String"
+      Value:
+        - !Ref TripSageDdbTable-Dev.Arn
+        - !Ref TripSageDdbTable-Prod.Arn
+  
 #############
 #  OUTPUTS  #
 #############
-
-Outputs:
-  EndpointUrl:
-    Description: 'HTTP REST endpoint URL'
-    Value: !Sub 'https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/${DeploymentEnv}'
