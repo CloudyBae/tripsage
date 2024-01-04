@@ -8,6 +8,7 @@ db.sqlite3
 media
 secrets.json
 .ebextensions
+.env
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml

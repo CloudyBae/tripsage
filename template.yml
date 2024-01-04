@@ -10,28 +10,20 @@ Parameters:
       - 'dev'
       - 'prod'
 
-  DeploymentEnv:
-    Description: 'Name of the environment that the resources are deployed into'
-    Type: 'String'
-    AllowedValues:
-      - 'dev'
-      - 'dev-feature'
-      - 'prod'
-
   ServiceEnv:
     Description: 'Name of the service environment'
     Type: 'String'
 
-  # LogLevel:
-  #   Description: "Log level for functions"
-  #   Type: String
-  #   Default: 'INFO'
-  #   AllowedValues:
-  #     - 'DEBUG'
-  #     - 'INFO'
-  #     - 'WARNING'
-  #     - 'ERROR'
-  #     - 'CRITICAL'
+  LogLevel:
+    Description: "Log level for functions"
+    Type: String
+    Default: 'INFO'
+    AllowedValues:
+      - 'INFO'
+      - 'DEBUG'
+
+Conditions:
+  IsProdDeployment: !Equals [!Ref ServiceEnv, 'prod']
 
 Globals:
   Function:
@@ -39,29 +31,137 @@ Globals:
     Timeout: 180
     Environment:
       Variables:
+        LOG_LEVEL:
+          Ref: LogLevel
         ResourceEnv: !Ref ResourceEnv
-        DeploymentEnv: !Ref DeploymentEnv
         ServiceEnv: !Ref ServiceEnv
 
-
 Resources:
-#   CommonLayer:
-#     Type: AWS::Serverless::LayerVersion
-#     Properties:
-#       LayerName:
-#       ContentUri: src/common
-#       RetentionPolicy: Delete
-#       CompatibleRuntimes: 
-#         - python3.10
-#     Metadata:
-#       BuildMethod: makefile
-  # LambdaCustomEdge:
-  #   Type: AWS::Serverless::Function 
-  #   Properties:
-  #     Handler: src.handler
-  #     Runtime: python3.10
-  
+###############
+#  S3 BUCKET  #
+###############
+
   TripSageBucket:
     Type: AWS::S3::Bucket
+    Condition: IsProdDeployment
     Properties:
-      BucketName: !Sub tripsage-bucket-${ServiceEnv}
+      BucketName: !Sub tripsage.net
+
+####################
+#  DYNAMODB TABLE  #
+####################
+
+  TripSageDdbTableDev:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      TableName: TripSage-Dev
+      KeySchema:
+        - AttributeName: PK
+          KeyType: HASH
+        - AttributeName: SK
+          KeyType: RANGE
+      AttributeDefinitions:
+        - AttributeName: PK
+          AttributeType: S
+        - AttributeName: SK
+          AttributeType: S
+        - AttributeName: GSI1_PK
+          AttributeType: S
+        - AttributeName: GSI1_SK
+          AttributeType: S
+        - AttributeName: GSI2_PK
+          AttributeType: S
+        - AttributeName: GSI2_SK
+          AttributeType: S
+      BillingMode: PAY_PER_REQUEST
+      GlobalSecondaryIndexes:
+        - IndexName: GSI1
+          KeySchema:
+            - AttributeName: GSI1_PK
+              KeyType: HASH
+            - AttributeName: GSI1_SK
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+        - IndexName: GSI2
+          KeySchema:
+            - AttributeName: GSI2_PK
+              KeyType: HASH
+            - AttributeName: GSI2_SK
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+
+  TripSageDdbTableProd:
+    Type: AWS::DynamoDB::Table
+    Condition: IsProdDeployment
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      TableName: TripSage-Prod
+      KeySchema:
+        - AttributeName: PK
+          KeyType: HASH
+        - AttributeName: SK
+          KeyType: RANGE
+      AttributeDefinitions:
+        - AttributeName: PK
+          AttributeType: S
+        - AttributeName: SK
+          AttributeType: S
+        - AttributeName: GSI1_PK
+          AttributeType: S
+        - AttributeName: GSI1_SK
+          AttributeType: S
+        - AttributeName: GSI2_PK
+          AttributeType: S
+        - AttributeName: GSI2_SK
+          AttributeType: S
+      BillingMode: PAY_PER_REQUEST
+      GlobalSecondaryIndexes:
+        - IndexName: GSI1
+          KeySchema:
+            - AttributeName: GSI1_PK
+              KeyType: HASH
+            - AttributeName: GSI1_SK
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+        - IndexName: GSI2
+          KeySchema:
+            - AttributeName: GSI2_PK
+              KeyType: HASH
+            - AttributeName: GSI2_SK
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+
+####################
+#  SSM Parameters  #
+####################
+
+  # DynamoDbName:
+  #   Type: AWS::SSM::Paramter
+  #   Properties:
+  #     Description: "Trip Sage DDB Name"
+  #     Name: !Sub "TripSageDdbName-${ResourceEnv}"
+  #     Type: "String"
+  #     Value:
+  #       - !Ref TripSageDdbTableDev
+  #       - !Ref TripSageDdbTableProd
+  
+  # DynamoDbArn:
+  #   Type: AWS::SSM::Parameter
+  #   Properties:
+  #     Description: "Trip Sage DDB Arn"
+  #     Name: !Sub "TripSageDdbArn-${ResourceEnv}"
+  #     Type: "String"
+  #     Value:
+  #       - !Ref TripSageDdbTableDev.Arn
+  #       - !Ref TripSageDdbTableProd.Arn
+  
+#############
+#  OUTPUTS  #
+#############
