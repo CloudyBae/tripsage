@@ -51,7 +51,7 @@ Resources:
 #  DYNAMODB TABLE  #
 ####################
 
-  TripSageDdbTable-Dev:
+  TripSageDdbTableDev:
     Type: AWS::DynamoDB::Table
     DeletionPolicy: Retain
     UpdateReplacePolicy: Retain
@@ -93,7 +93,7 @@ Resources:
           Projection:
             ProjectionType: ALL
 
-  TripSageDdbTable-Prod:
+  TripSageDdbTableProd:
     Type: AWS::DynamoDB::Table
     Condition: IsProdDeployment
     DeletionPolicy: Retain
@@ -147,8 +147,8 @@ Resources:
       Name: !Sub "TripSageDdbName-${ResourceEnv}"
       Type: "String"
       Value:
-        - !Ref TripSageDdbTable-Dev
-        - !Ref TripSageDdbTable-Prod
+        - !Ref TripSageDdbTableDev
+        - !Ref TripSageDdbTableProd
   
   DynamoDbArn:
     Type: AWS::SSM::Parameter
@@ -157,8 +157,8 @@ Resources:
       Name: !Sub "TripSageDdbArn-${ResourceEnv}"
       Type: "String"
       Value:
-        - !Ref TripSageDdbTable-Dev.Arn
-        - !Ref TripSageDdbTable-Prod.Arn
+        - !Ref TripSageDdbTableDev.Arn
+        - !Ref TripSageDdbTableProd.Arn
   
 #############
 #  OUTPUTS  #
