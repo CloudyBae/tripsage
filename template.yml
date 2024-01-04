@@ -140,25 +140,25 @@ Resources:
 #  SSM Parameters  #
 ####################
 
-  DynamoDbName:
-    Type: AWS::SSM::Paramter
-    Properties:
-      Description: "Trip Sage DDB Name"
-      Name: !Sub "TripSageDdbName-${ResourceEnv}"
-      Type: "String"
-      Value:
-        - !Ref TripSageDdbTableDev
-        - !Ref TripSageDdbTableProd
+  # DynamoDbName:
+  #   Type: AWS::SSM::Paramter
+  #   Properties:
+  #     Description: "Trip Sage DDB Name"
+  #     Name: !Sub "TripSageDdbName-${ResourceEnv}"
+  #     Type: "String"
+  #     Value:
+  #       - !Ref TripSageDdbTableDev
+  #       - !Ref TripSageDdbTableProd
   
-  DynamoDbArn:
-    Type: AWS::SSM::Parameter
-    Properties:
-      Description: "Trip Sage DDB Arn"
-      Name: !Sub "TripSageDdbArn-${ResourceEnv}"
-      Type: "String"
-      Value:
-        - !Ref TripSageDdbTableDev.Arn
-        - !Ref TripSageDdbTableProd.Arn
+  # DynamoDbArn:
+  #   Type: AWS::SSM::Parameter
+  #   Properties:
+  #     Description: "Trip Sage DDB Arn"
+  #     Name: !Sub "TripSageDdbArn-${ResourceEnv}"
+  #     Type: "String"
+  #     Value:
+  #       - !Ref TripSageDdbTableDev.Arn
+  #       - !Ref TripSageDdbTableProd.Arn
   
 #############
 #  OUTPUTS  #
