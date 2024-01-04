@@ -23,7 +23,8 @@ Parameters:
       - 'DEBUG'
 
 Conditions:
-  IsProdDeployment: !Equals [!Ref ServiceEnv, 'prod']
+  IsProdDeployment: !Equals [!Ref ResourceEnv, 'prod']
+  IsDevDeployment: !Equals [!Ref ResourceEnv, 'dev']
 
 Globals:
   Function:
@@ -53,6 +54,7 @@ Resources:
 
   TripSageDdbTableDev:
     Type: AWS::DynamoDB::Table
+    Condition: IsDevDeployment
     DeletionPolicy: Retain
     UpdateReplacePolicy: Retain
     Properties:
