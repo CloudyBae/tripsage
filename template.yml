@@ -56,6 +56,7 @@ Resources:
     DeletionPolicy: Retain
     UpdateReplacePolicy: Retain
     Properties:
+      TableName: TripSage-Dev
       KeySchema:
         - AttributeName: PK
           KeyType: HASH
@@ -99,6 +100,7 @@ Resources:
     DeletionPolicy: Retain
     UpdateReplacePolicy: Retain
     Properties:
+      TableName: TripSage-Prod
       KeySchema:
         - AttributeName: PK
           KeyType: HASH
