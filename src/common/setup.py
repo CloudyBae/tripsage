@@ -14,5 +14,12 @@ setup(
         "botocore",
         "boto3",
         "dataclasses-json"
+    ],
+    classifiers=[
+        "Environment :: Console",
+        "Environment :: Other Environment",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 3.10"
     ]
 )
