@@ -94,8 +94,3 @@ Resources:
 #############
 #  OUTPUTS  #
 #############
-
-  Outputs:
-    EndpointUrl:
-      Description: 'HTTP REST endpoint URL'
-      Value: !Sub 'https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/${ResourceEnv}'
