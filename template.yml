@@ -28,7 +28,8 @@ Conditions:
 Globals:
   Function:
     Runtime: python3.10
-    Timeout: 180
+    MemorySize: 128
+    Timeout: 60
     Environment:
       Variables:
         LOG_LEVEL:
@@ -37,6 +38,49 @@ Globals:
         ServiceEnv: !Ref ServiceEnv
 
 Resources:
+  TripSageLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      Description: "Lambda layer for Trip Sage"
+      LayerName: !Sub "${ServiceEnv}-TripSage-Layer"
+      ContentUri: src/common
+      RetentionPolicy: Delete
+      CompatibleRuntimes: 
+        - python3.10
+    Metadata:
+      BuildMethod: makefile
+
+  CreateUserRecord:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: "Creates User Record"
+      FunctionName: !Sub "CreateUserRecord-${ServiceEnv}"
+      Handler: function.handler
+      CodeUri: src/handler
+      Layers:
+        - !Ref TripSageLayer
+      Policies:
+        - SSMParameterReadPolicy:
+            ParameterName: !Sub "TripSage/${ResourceEnv}/*"
+        - Statement:
+            - Effect: "Allow"
+              Action:
+                - "dynamodb:PutItem"
+                - "dynamodb:GetItem"
+                - "dynamodb:UpdateItem"
+                - "dynamodb:Query"
+              Resource:
+                - !Sub "{{resolve:ssm:/TripSage/${ResourceEnv}/TripSageDdbName}}"
+                - !Join [ "/", [ !Sub "{{resolve:ssm:/TripSage/${ResourceEnv}/TripSageDdbArn}}", "index", "GSI1"] ]
+                - !Join [ "/", [ !Sub "{{resolve:ssm:/TripSage/${ResourceEnv}/TripSageDdbArn}}", "index", "GSI2"] ]
+
+  CreateUserRecordApiPerm:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt CreateUserRecord.Arn
+      Principal: apigateway.amazonaws.com
+
 ###############
 #  S3 BUCKET  #
 ###############
@@ -50,3 +94,8 @@ Resources:
 #############
 #  OUTPUTS  #
 #############
+
+  Outputs:
+    EndpointUrl:
+      Description: 'HTTP REST endpoint URL'
+      Value: !Sub 'https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/${ResourceEnv}'
