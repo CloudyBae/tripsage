@@ -1,3 +1,5 @@
 .vscode
 documentation
 test.yml
+src/common/build
+src/common/common.egg-info

@@ -1,3 +1,0 @@
-aws_lambda_powertools,
-botocore,
-boto3,

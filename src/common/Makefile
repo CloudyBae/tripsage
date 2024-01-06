@@ -1,4 +1,5 @@
-build-MyLayer:
-  mkdir -p "$(ARTIFACTS_DIR)/python"
-  cp *.py "$(ARTIFACTS_DIR)/python"
-  python -m pip install -r requirements.txt -t "$(ARTIFACTS_DIR)/python"
+build-TripSageLayer:
+	python3.10 ./setup.py build
+	pip3.10 wheel -w tmp -e .
+	mkdir $(ARTIFACTS_DIR)/python
+	pip3.10 install tmp/common-* --target $(ARTIFACTS_DIR)/python/

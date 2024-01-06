@@ -38,11 +38,11 @@ Globals:
         ServiceEnv: !Ref ServiceEnv
 
 Resources:
-  TripSageLayer:
+  CommonLayer:
     Type: AWS::Serverless::LayerVersion
     Properties:
       Description: "Lambda layer for Trip Sage"
-      LayerName: !Sub "${ServiceEnv}-TripSage-Layer"
+      LayerName: !Sub "${ServiceEnv}-CommonLayer"
       ContentUri: src/common
       RetentionPolicy: Delete
       CompatibleRuntimes: 
